@@ -1,0 +1,210 @@
+/* Containment — a dark lab chamber, teal readouts, and the red and blue of
+   JezzBall's two wall halves. gamekit supplies the screens, buttons, roster,
+   PIN pad and leaderboard; this file themes them and adds the game screens. */
+
+:root {
+  --bg: #060a14;
+  --panel: #111a2e;
+  --panel2: #18233c;
+  --line: rgba(120,170,255,.2);
+  --text: #e3ecff;
+  --dim: #9aabc9;
+  --teal: #36e2c4;
+  --teal-sh: #1f9e89;
+  --red: #ff4f6e;
+  --blue: #47b3ff;
+  --ink: #04201b;
+
+  --gk-accent: var(--teal);   --gk-accent-sh: var(--teal-sh);
+  --gk-btn-ink: var(--ink);
+  --gk-ink: var(--text);       /* the kit paints roster + leaderboard text with this */
+  --gk-card: rgba(255,255,255,.06);
+  --gk-key-bg: rgba(255,255,255,.08);
+  --gk-key-sh: rgba(0,0,0,.4);
+  --gk-input-border: var(--line);
+}
+
+/* The root carries the base colour, not just the body: with viewport-fit=cover
+   iOS extends the viewport past height:100% when installed, and a colour set
+   only on body leaves a white strip behind the home indicator. */
+html { background: var(--bg); }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Chakra Petch', system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: radial-gradient(120% 70% at 50% -10%, #17264a 0%, #0a1122 50%, #05080f 100%);
+  background-color: var(--bg);   /* after the shorthand, which resets it */
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+h1, h2, h3 { font-weight: 700; }
+.nudge { font-size: 15px; line-height: 1.45; color: var(--dim); margin: 4px 0 14px; }
+
+/* ------------------------------------------------------------- buttons -- */
+.btn { font-family: inherit; letter-spacing: .02em; }
+.btn.ghost {
+  background: transparent; color: var(--teal); box-shadow: none;
+  border: 2px solid rgba(54,226,196,.45); padding: 12px 18px; font-size: 16px; margin: 6px 0;
+}
+.btn.ghost:active { transform: translateY(2px); box-shadow: none; }
+.btn.big { font-size: 21px; padding: 17px 28px; }
+.btn.blue { background: #2670ab; box-shadow: 0 6px 0 #17527f; }
+.btn.grey { background: #3a4660; box-shadow: 0 6px 0 #242c3e; }
+
+.iconbtn { background: rgba(255,255,255,.08); color: var(--text); box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+.iconbtn.small { width: 40px; height: 40px; font-size: 17px; border-radius: 11px; }
+
+.topbar h2 { margin: 0; font-size: 22px; }
+.who { font-size: 18px; }
+
+/* --------------------------------------------------- kit sheets, darkened -- */
+/* gk-base dresses .sheet for the light kit. Override the whole component —
+   recolouring only its text puts pale lettering on a white card. */
+.sheet { background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+.sheet input { background: rgba(0,0,0,.32); color: var(--text); border-color: var(--line); font-family: inherit; }
+.sheet input::placeholder { color: var(--dim); }
+.sheet p { color: var(--dim); opacity: 1; }
+.avatar-choice { background: rgba(255,255,255,.08); color: var(--text); }
+.avatar-choice.selected { border-color: var(--teal); background: rgba(54,226,196,.18); }
+.pin-key { background: rgba(255,255,255,.08); color: var(--text); box-shadow: 0 3px 0 rgba(0,0,0,.4); }
+.pin-dots span { background: rgba(255,255,255,.08); border-color: var(--line); }
+.pin-dots span.on { background: var(--teal); border-color: var(--teal); }
+.avatar-grid { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
+.sheet .btn.wide { margin-top: 8px; }
+.sheet .row-btns2 .btn { font-size: 16px; }
+
+.howto { text-align: left; max-width: 440px; max-height: 86vh; overflow-y: auto; }
+.howto h2 { text-align: center; }
+.howto h3 { margin: 12px 0 0; font-size: 17px; color: var(--teal); }
+.howto-list { margin: 8px 0 14px; padding-left: 20px; font-size: 14.5px; line-height: 1.55; }
+.howto-list li { margin-bottom: 7px; }
+.red { color: var(--red); font-weight: 700; }
+.blue { color: var(--blue); font-weight: 700; }
+
+/* -------------------------------------------------------------- splash -- */
+.mark { position: relative; width: 96px; height: 96px; margin-bottom: 8px;
+  border: 3px solid #2a3d66; background: #0c1426; box-shadow: 0 0 34px rgba(54,226,196,.25); }
+.mark .m-red, .mark .m-blue { position: absolute; top: 44px; height: 8px; }
+.mark .m-red { left: 8px; width: 40px; background: var(--red); box-shadow: 0 0 10px var(--red); }
+.mark .m-blue { left: 48px; width: 32px; background: var(--blue); box-shadow: 0 0 10px var(--blue); }
+.mark i { position: absolute; width: 16px; height: 16px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #d6ecff 45%, #2f86d6); }
+.mark i:nth-of-type(1) { left: 20px; top: 16px; }
+.mark i:nth-of-type(2) { left: 58px; top: 66px; background: radial-gradient(circle at 35% 30%, #fff, #ffd1d9 45%, #e2334f); }
+
+.logo {
+  font-size: clamp(40px, 13vw, 62px); line-height: .9; margin: 8px 0 10px;
+  letter-spacing: .06em; color: var(--text); text-shadow: 0 0 22px rgba(71,179,255,.35);
+}
+.logo span { color: var(--teal); }
+.tagline { max-width: 420px; font-size: 16px; line-height: 1.45; color: var(--dim); margin: 0 0 16px; padding: 0 20px; }
+.splash-foot { display: flex; align-items: center; gap: 12px; margin-top: 18px; font-size: 14px; color: var(--dim); }
+.keys-hint { font-size: 13px; color: var(--dim); margin: 12px 18px 0; display: none; }
+@media (pointer: fine) { .keys-hint { display: block; } }
+
+/* --------------------------------------------------------------- lobby -- */
+.lobby-inner { margin: auto; width: 100%; max-width: 460px; padding: 12px 18px 40px; text-align: center; }
+.stat-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+.stat { display: flex; flex-direction: column; gap: 2px; background: rgba(255,255,255,.06);
+  border: 1px solid var(--line); padding: 14px 6px; border-radius: 14px; }
+.stat-v { font-size: 24px; font-weight: 700; color: var(--teal); font-variant-numeric: tabular-nums; }
+.stat-k { font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; }
+.lobby-note { font-size: 14.5px; line-height: 1.5; color: var(--dim); margin-top: 16px; }
+
+/* --------------------------------------------------------- game screen -- */
+/* Never set `display` in a #screen-* rule: an id selector outranks
+   .screen/.screen.active and would pin this screen visible over every other. */
+#screen-game {
+  align-items: stretch;      /* .screen centres its children, collapsing the stage to 0 wide */
+  justify-content: flex-start;
+  padding: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.gamebar {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: calc(8px + env(safe-area-inset-top)) 12px 6px;
+  background: rgba(5,8,15,.92);
+}
+.gamebar .grow { flex: 1; }
+/* On a wide monitor the field is a narrow column; keep the readouts over it
+   rather than flung to the far edges of the screen. */
+.gamebar, .meters { box-shadow: 0 0 0 100vmax rgba(5,8,15,.92); clip-path: inset(0 -100vmax); }
+@media (min-width: 620px) {
+  .gamebar, .meters { width: 560px; max-width: 100%; align-self: center; }
+}
+.hud { font-size: 17px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hud.lvl { color: var(--teal); }
+.hud.lives { color: #ff8fa3; }
+.hud.score { text-align: right; font-size: 20px; }
+
+.meters { display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; padding: 2px 12px 8px; background: rgba(5,8,15,.92); }
+.meter { position: relative; height: 24px; border-radius: 7px; overflow: hidden;
+  background: rgba(255,255,255,.07); border: 1px solid var(--line); }
+.meter-fill { position: absolute; inset: 0 auto 0 0; width: 0; background: #1f6f63; transition: width .2s; }
+.meter-fill.done { background: #22a18a; }
+.meter.time .meter-fill { background: #2b4f86; transition: none; }
+.meter.time .meter-fill.low { background: #a8344a; }
+.meter-label { position: relative; display: block; line-height: 22px; padding: 0 8px;
+  font-size: 12px; letter-spacing: .08em; color: var(--dim); white-space: nowrap; }
+.meter-label b { color: var(--text); font-size: 13px; }
+
+.stage { position: relative; flex: 1; width: 100%; min-height: 0; }
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+/* Level banner, floated inside the stage so it never reflows the field. */
+.banner { position: absolute; left: 50%; top: 42%; transform: translate(-50%, 0); pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 2px; opacity: 0;
+  padding: 10px 22px; border-radius: 14px; background: rgba(5,8,15,.82); border: 1px solid var(--line); white-space: nowrap; }
+.banner b { font-size: 26px; color: var(--teal); letter-spacing: .06em; }
+.banner span { font-size: 14px; color: var(--text); }
+.banner.show { animation: banner 2.2s ease-out forwards; }
+@keyframes banner { 0% { opacity: 0; transform: translate(-50%, 10px); } 12% { opacity: 1; transform: translate(-50%, 0); } 75% { opacity: 1; } 100% { opacity: 0; } }
+
+.level-card { position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; background: rgba(3,6,12,.66); }
+.card-inner { width: min(92vw, 380px); background: var(--panel2); border: 1px solid var(--line);
+  border-radius: 20px; padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.6); text-align: center; }
+.card-inner h3 { margin: 0 0 10px; font-size: 24px; color: var(--teal); }
+.card-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 2px; font-size: 15px;
+  border-bottom: 1px solid rgba(120,170,255,.1); color: var(--dim); }
+.card-row b { color: var(--text); font-variant-numeric: tabular-nums; }
+.card-row.total { font-size: 19px; color: var(--text); border-bottom: none; margin-bottom: 6px; }
+.card-row.total b { color: var(--teal); }
+.card-inner .btn { margin: 6px 0; }
+
+/* Fixed height so the field never reflows when anything inside changes. */
+.actionbar {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  background: rgba(5,8,15,.94);
+}
+.modeswitch { display: flex; width: 100%; max-width: 420px; height: 50px; border-radius: 14px; overflow: hidden;
+  background: #151e33; box-shadow: 0 5px 0 #070b14; }
+.mode-opt { flex: 1; border: none; cursor: pointer; font-family: inherit;
+  font-size: 16px; font-weight: 700; color: #9aabc9; background: transparent;
+  display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .12s, color .12s; }
+.mode-opt .glyph { font-size: 20px; }
+.mode-opt.on { color: #fff; background: #2f4470; }
+.mode-opt:active { transform: translateY(1px); }
+.swipe-hint { margin: 0; font-size: 12px; color: var(--dim); letter-spacing: .04em; }
+@media (pointer: fine) { .swipe-hint::after { content: " · right click or Space turns it"; } }
+
+/* ------------------------------------------------------------- results -- */
+.res-inner { margin: auto; width: 100%; max-width: 460px; padding: 20px; text-align: center; }
+.res-mark { font-size: 56px; }
+.res-title { font-size: 28px; margin: 4px 0; color: var(--text); }
+.res-score { font-size: 52px; font-weight: 700; color: var(--teal); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.res-level { font-size: 16px; color: var(--text); margin: 4px 0; }
+.res-best { font-size: 17px; font-weight: 700; color: #ffd166; margin: 6px 0; }
+.res-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 14px 0; font-size: 14px; color: var(--dim); }
+.res-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.res-actions .btn { margin: 4px 0; }
+
+/* ---------------------------------------------------------- leaderboard -- */
+.lb-row { border: 1px solid var(--line); }
+.lb-row.me { outline-color: var(--teal); }
+.profile-card { border: 1px solid var(--line); }

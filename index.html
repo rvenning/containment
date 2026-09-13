@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Containment ⚛️ — Wall In the Particles</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#060a14">
+<meta name="description" content="A JezzBall-style arcade game. Build walls to seal off particles bouncing round a containment chamber — claim 75% of the field to go up a level, and don't let anything touch a wall before it's finished.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Containment">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="lib/gk-base.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛️</text></svg>">
+</head>
+<body>
+
+<!-- Splash -->
+<div class="screen active" id="screen-splash">
+  <div class="splash-inner">
+    <div class="mark" aria-hidden="true"><span class="m-red"></span><span class="m-blue"></span><i></i><i></i></div>
+    <h1 class="logo">CONTAIN<span>MENT</span></h1>
+    <p class="tagline">Particles loose in the chamber. Build walls to seal them in. Claim 75% of the field — and don't let anything touch a wall before it's finished.</p>
+    <button class="btn big" id="btn-continue-as" hidden></button>
+    <button class="btn big" id="btn-start" onclick="App.play()">⚛️ Enter the lab</button>
+    <button class="btn ghost" onclick="App.howTo()">📖 How to play</button>
+    <button class="btn ghost" id="btn-install" style="display:none">📲 Add to Home Screen</button>
+    <p class="keys-hint">🖱️ Left click builds a wall · right click or Space turns it · P pauses</p>
+    <div class="splash-foot">
+      <span id="sync-badge">⏳ connecting…</span>
+      <button class="btn-sound iconbtn" aria-label="Sound">🔊</button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile picker (roster + PIN modals are rendered by GK.Profiles) -->
+<div class="screen" id="screen-profiles">
+  <header class="topbar">
+    <button class="iconbtn" onclick="App.showScreen('splash')" aria-label="Back">←</button>
+    <h2 class="grow">Who's on shift?</h2>
+    <button class="btn-sound iconbtn" aria-label="Sound">🔊</button>
+  </header>
+  <div class="content">
+    <div class="profile-list" id="profile-list"></div>
+  </div>
+</div>
+
+<!-- Lobby -->
+<div class="screen" id="screen-lobby">
+  <header class="topbar">
+    <button class="iconbtn" onclick="App.play()" aria-label="Switch researcher">👥</button>
+    <div class="grow who" id="lobby-who"></div>
+    <button class="btn-sound iconbtn" aria-label="Sound">🔊</button>
+  </header>
+  <div class="lobby-inner">
+    <div class="stat-strip" id="lobby-stats"></div>
+    <button class="btn big wide" onclick="App.startRun()">▶ Start a run</button>
+    <div class="row-btns2">
+      <button class="btn blue" onclick="App.showLeaderboard()">🏆 Leaderboard</button>
+      <button class="btn grey" onclick="App.howTo()">📖 How to play</button>
+    </div>
+    <p class="lobby-note">Level <b>n</b> releases <b>n+1</b> particles and gives you <b>n+1</b> lives. One run, as deep as you can go — your best score goes on the family board.</p>
+  </div>
+</div>
+
+<!-- The chamber -->
+<div class="screen" id="screen-game">
+  <header class="gamebar">
+    <button class="iconbtn small" onclick="App.pause()" aria-label="Pause">⏸</button>
+    <span class="hud lvl" id="hud-level">L1</span>
+    <span class="hud lives" id="hud-lives">❤ 2</span>
+    <span class="hud score grow" id="hud-score">0</span>
+  </header>
+  <div class="meters">
+    <div class="meter" aria-label="Claimed">
+      <div class="meter-fill" id="meter-fill"></div>
+      <span class="meter-label">CLAIMED <b id="hud-pct">0%</b> / 75%</span>
+    </div>
+    <div class="meter time" aria-label="Time left">
+      <div class="meter-fill" id="time-fill"></div>
+      <span class="meter-label">TIME <b id="hud-time">0s</b></span>
+    </div>
+  </div>
+  <div class="stage" id="stage">
+    <canvas id="cv"></canvas>
+    <div class="banner" id="banner" aria-live="polite"></div>
+    <div class="level-card" id="level-card" hidden>
+      <div class="card-inner">
+        <h3 id="card-title">Level contained</h3>
+        <div id="card-rows"></div>
+        <div class="card-row total"><span>Score</span><b id="card-total">0</b></div>
+        <button class="btn big wide" id="btn-next" onclick="App.nextLevel()">▶ Next level</button>
+        <button class="btn ghost wide" onclick="App.quitRun()">End the run here</button>
+      </div>
+    </div>
+  </div>
+  <div class="actionbar">
+    <!-- Both orientations are always on screen with the live one lit. A single
+         button labelled with the current mode reads as "press to do this"
+         rather than "this is what a tap does". -->
+    <div class="modeswitch" role="group" aria-label="What a tap builds">
+      <button class="mode-opt" id="btn-across" aria-pressed="false" onclick="App.setOrient('h')"><span class="glyph">⟷</span> Across</button>
+      <button class="mode-opt on" id="btn-down" aria-pressed="true" onclick="App.setOrient('v')"><span class="glyph">↕</span> Up–down</button>
+    </div>
+    <p class="swipe-hint">or swipe the way you want it</p>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="screen" id="screen-results">
+  <div class="res-inner">
+    <div class="res-mark" aria-hidden="true">⚛️</div>
+    <h2 class="res-title" id="res-title">Run over</h2>
+    <div class="res-score" id="res-score">0</div>
+    <p class="res-level" id="res-level"></p>
+    <p class="res-best" id="res-best" hidden>🏆 A new personal best</p>
+    <div class="res-stats" id="res-stats"></div>
+    <div class="res-actions">
+      <button class="btn grey" onclick="App.showLobby()">🏠 Lobby</button>
+      <button class="btn blue" onclick="App.showLeaderboard()">🏆 Board</button>
+      <button class="btn" onclick="App.startRun()">▶ Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboard -->
+<div class="screen" id="screen-leaderboard">
+  <header class="topbar">
+    <button class="iconbtn" onclick="App.showLobby()" aria-label="Back">←</button>
+    <h2 class="grow">🏆 Family board</h2>
+    <button class="btn-sound iconbtn" aria-label="Sound">🔊</button>
+  </header>
+  <div class="content">
+    <p class="nudge">Best single run, then deepest level reached.</p>
+    <div class="lb-rows" id="lb-rows"></div>
+  </div>
+</div>
+
+<!-- Pause -->
+<div class="modal" id="modal-pause">
+  <div class="sheet">
+    <h2>⏸ Paused</h2>
+    <p>The particles are frozen and the clock has stopped.</p>
+    <button class="btn wide" onclick="App.resume()">▶ Back to it</button>
+    <div class="row-btns2">
+      <button class="btn grey" onclick="App.howTo()">📖 Rules</button>
+      <button class="btn-sound btn grey" aria-label="Sound">🔊</button>
+    </div>
+    <button class="btn danger wide" onclick="App.quitRun()">End the run</button>
+  </div>
+</div>
+
+<!-- How to play -->
+<div class="modal" id="modal-howto">
+  <div class="sheet howto">
+    <h2>📖 How to play</h2>
+    <ul class="howto-list">
+      <li><b>Tap an empty cell</b> to start a wall. It grows both ways at once — a <span class="red">red</span> half and a <span class="blue">blue</span> half — until each reaches something solid.</li>
+      <li>The switch under the chamber sets which way a tap builds. Or <b>swipe</b> across or up–down from where you want the wall. On a mouse, <b>right click</b> or <b>Space</b> turns it.</li>
+      <li>Any region left with no particle in it is <b>sealed</b> and counts as claimed. Claim <b>75%</b> to clear the level.</li>
+      <li>If a particle touches a half <b>while it is still growing</b>, that half is destroyed and you lose a life. The other half keeps going.</li>
+      <li>One wall at a time. Run out of lives or time and the run is over.</li>
+      <li>Level <b>n</b> has <b>n+1</b> particles and <b>n+1</b> lives.</li>
+    </ul>
+    <h3>Scoring</h3>
+    <ul class="howto-list">
+      <li>Every cell you claim is worth the <b>level number</b>.</li>
+      <li>Clearing a level pays, again times the level: <b>100</b> per life left, <b>5</b> per second left, and <b>60</b> for every percent you claim past 75.</li>
+    </ul>
+    <button class="btn wide" onclick="GK.UI.closeModal('modal-howto')">Got it</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- gamekit (vendored from rvenning/gamekit into lib/) -->
+<script src="lib/gk-util.js"></script>
+<script src="lib/gk-audio.js"></script>
+<script src="lib/gk-ui.js"></script>
+<script src="lib/gk-storage.js"></script>
+<script src="lib/gk-profiles.js"></script>
+<script src="lib/gk-pwa.js"></script>
+<script src="lib/gk-fx.js"></script>
+<script src="lib/gk-debug.js"></script>
+<script>
+// Sparks: fast, fine and short-lived, with a sharp shake that settles quickly
+// so a crowded field stays readable.
+const Fx = GK.Fx.configure({
+  grav: 120, poolCap: 600, shakeMax: 12, shakeDecay: 34, shape: "circle",
+  burstSpeed: 170, burstSize: 2.2, textSize: 15, textDy: -34, textCap: 20,
+  font: "'Chakra Petch', system-ui, sans-serif",
+});
+</script>
+<script src="js/firebase-config.js"></script>
+<!-- engine -->
+<script src="js/rng.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/game.js"></script>
+<!-- systems -->
+<script src="js/storage.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/render.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

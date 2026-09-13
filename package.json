@@ -1,0 +1,10 @@
+{
+  "name": "containment",
+  "private": true,
+  "description": "Containment — a JezzBall-style arcade game: wall in the particles, claim 75% of the chamber. Built on gamekit.",
+  "scripts": {
+    "test": "node --test",
+    "diag": "node tests/diag.js",
+    "icons": "node tools/make-icons.js"
+  }
+}

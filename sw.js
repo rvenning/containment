@@ -1,6 +1,6 @@
 // Containment service worker — network-first, cache fallback.
 // BUMP the cache name on ANY shell change or devices keep serving the old build.
-const CACHE = "containment-v2";
+const CACHE = "containment-v3";
 const SHELL = [
   ".",
   "index.html",
